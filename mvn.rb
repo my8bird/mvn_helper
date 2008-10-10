@@ -10,40 +10,43 @@ require 'fileutils'
 # Launchy Command: mvn <tab> <project name>...
 
 def prettyArray(arg)
-	ret = " "
-	array = arg.sort
-	array.each{|x|
-		key = x[0]
-		value = x[1]
-		if (value)
-			ret += key + " "
-		end
-	}
-	ret
+  ret = " "
+  array = arg.sort
+  array.each{|x|
+    key = x[0]
+    value = x[1]
+    if (value)
+      ret += key + " "
+    end
+  }
+  ret
 end
 
 def runBuild(dir, mavenArgs, flags)
-	s = ENV['PROJECT_DIR']
-	if(s == nil)
-		s = "C:\\users\\common\\privateloan"
-	end
+  s = ENV['PROJECT_DIR']
+  if(s == nil)
+    s = "C:\\users\\common\\privateloan"
+  end
+  
+  projectDirectory = String.new(s)
+  projectDirectory = File.join(projectDirectory.gsub("\\", "/"),  dir)
 	
-	projectDirectory = String.new(s)
-	projectDirectory = File.join(projectDirectory.gsub("\\", "/"),  dir)
-	
-	mvnCommand = "mvn -f #{projectDirectory}/pom.xml #{prettyArray(mavenArgs)} -Pisl-internal"
-
-	if(flags[:printDoNotRun])
-		puts mvnCommand
-	elsif
-		retval = system(mvnCommand) 
-		puts $?
-		if($? != 0)
-			puts "Unusual retval #{retval}"
-			exit
-		end
-	end
+  mvnCommand = "mvn -f #{projectDirectory}/pom.xml #{prettyArray(mavenArgs)} -Pisl-internal"
+  puts mvnCommand
+  if(flags[:printDoNotRun])
+    puts mvnCommand
+  elsif
+    retval = system(mvnCommand) 
+    puts "$? #{$?}"
+    puts "retvat #{retval}"
+    if($? != 0)
+      puts "Unusual retval #{retval}"
+      exit!
+    end
+    gets "wait here"
+  end
 end
+
 def setToForIn(status, args, map)
 	argsArray = args.split(//)
 	argsArray.each { |char|
