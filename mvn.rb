@@ -37,29 +37,25 @@ def runBuild(dir, mavenArgs, flags)
     puts mvnCommand
   elsif
     retval = system(mvnCommand) 
-    puts "$? #{$?}"
-    puts "retvat #{retval}"
+
     if($? != 0)
       puts "Unusual retval #{retval}"
       exit!
     end
-    gets "wait here"
+
   end
 end
 
 def setToForIn(status, args, map)
-	argsArray = args.split(//)
-	argsArray.each { |char|
-		map.each { |key, value|
-			regex = Regexp.new("^"+char+".+")
-			if(regex.match(key))
-				map[key] = status
-			end
-		}
-	}
-end
-
-def outputCommandsToExecute()
+  argsArray = args.split(//)
+  argsArray.each { |char|
+    map.each { |key, value|
+      regex = Regexp.new("^"+char+".+")
+      if(regex.match(key))
+        map[key] = status
+      end
+    }
+  }
 end
 
 # m ci ip ci g/gw p i =>
@@ -68,37 +64,37 @@ end
 # mvn process-sources integration
 
 def process(args, flags, mavenArgs, dirMappings)
-	doMavenArgs = true;
-	args.each do |arg|
-		if(/^-/.match(arg))
-			next
-		end
-	
-		if(doMavenArgs)
-			setToForIn(false, "cipt", mavenArgs)
-			setToForIn(true, arg, mavenArgs)
-		elsif
-			if(dirMappings[arg])
-				runBuild(dirMappings[arg], mavenArgs, flags)
-			else
-				regexStr = "^"
-				arg.gsub(/./){|s| regexStr += s+"[a-zA-Z]*-"}
-				regexStr = regexStr.chop
-				regexStr += "$"
-				
-				regex = Regexp.new(regexStr)
-			
-				dirEntries = Dir.entries("C:/users/common/privateloan")
-				dirEntries.each{|x|
-					if (regex.match(x))
-						runBuild(x, mavenArgs, flags)
-						break 
-					end
-				}
-			end
-		end
-		doMavenArgs = !doMavenArgs
-	end
+  doMavenArgs = true;
+  args.each do |arg|
+    if(/^-/.match(arg))
+      next
+    end
+    
+    if(doMavenArgs)
+      setToForIn(false, "cipt", mavenArgs)
+      setToForIn(true, arg, mavenArgs)
+    elsif
+      if(dirMappings[arg])
+        runBuild(dirMappings[arg], mavenArgs, flags)
+      else
+        regexStr = "^"
+        arg.gsub(/./){|s| regexStr += s+"[a-zA-Z]*-"}
+        regexStr = regexStr.chop
+        regexStr += "$"
+        
+        regex = Regexp.new(regexStr)
+        
+        dirEntries = Dir.entries("C:/users/common/privateloan")
+        dirEntries.each{|x|
+          if (regex.match(x))
+            runBuild(x, mavenArgs, flags)
+            break 
+          end
+        }
+      end
+    end
+    doMavenArgs = !doMavenArgs
+  end
 end
 
 possibleMavenArguments={}
@@ -106,6 +102,7 @@ possibleMavenArguments["clean"] = false
 possibleMavenArguments["install"] = false
 possibleMavenArguments["process-resources"] = false
 possibleMavenArguments["test-compile"] = false
+possibleMavenArguments["jetty:run"] = false
 
 projectDirectoryMappings={}
 projectDirectoryMappings['ippdf']='isl-privateloan-pdf'
@@ -113,6 +110,7 @@ projectDirectoryMappings['aw']='alpha/alpha-web'
 projectDirectoryMappings['ae']='alpha/alpha-ear'
 projectDirectoryMappings['gw']='genesis/genesis-web'
 projectDirectoryMappings['ge']='genesis/genesis-ear'
+projectDirectoryMappings['ipprocess']='isl-privateloan-process'
 
 flags={}
 flags[:printDoNotRun]=ARGV.include?("-v")
