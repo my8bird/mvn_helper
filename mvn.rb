@@ -25,7 +25,7 @@ end
 def runBuild(dir, mavenArgs, flags)
   s = ENV['PROJECT_DIR']
   if(s == nil)
-    s = "C:\\users\\common\\privateloan"
+    s = "C:\\users\\common\\privateoan"
   end
   
   projectDirectory = String.new(s)
@@ -98,12 +98,24 @@ def process(args, flags, mavenArgs, dirMappings)
   end
 end
 
-possibleMavenArguments={}
-possibleMavenArguments["clean"] = false
-possibleMavenArguments["install"] = false
-possibleMavenArguments["process-resources"] = false
-possibleMavenArguments["test-compile"] = false
-possibleMavenArguments["jetty:run"] = false
+def parseCommands()
+  s = ENV['MAVEN_COMMANDS']
+puts s
+  if(s == nil)
+    s = "clean, install, process-resources, test-compile, jetty:run"
+  end
+
+  args={}
+  list = s.split(',')
+  list.each{|it|
+    puts it
+    args[it.strip] = false
+  }
+
+  args
+end
+
+possibleMavenArguments = parseCommands()
 
 projectDirectoryMappings={}
 projectDirectoryMappings['ippdf']='isl-privateloan-pdf'
@@ -111,7 +123,7 @@ projectDirectoryMappings['aw']='alpha/alpha-web'
 projectDirectoryMappings['ae']='alpha/alpha-ear'
 projectDirectoryMappings['gw']='genesis/genesis-web'
 projectDirectoryMappings['ge']='genesis/genesis-ear'
-projectDirectoryMappings['ipprocess']='isl-privateloan-process'
+projectDirectoryMappings['ipprocess']= 'isl-privateloan-process'
 
 flags={}
 flags[:printDoNotRun]=ARGV.include?("-v")
