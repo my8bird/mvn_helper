@@ -108,24 +108,30 @@ def parseCommands()
   args={}
   list = s.split(',')
   list.each{|it|
-    puts it
     args[it.strip] = false
   }
 
   args
 end
 
-possibleMavenArguments = parseCommands()
+def parseDirectoryMappings()
+  s = ENV['PROJECT_MAPPINGS']
 
-projectDirectoryMappings={}
-projectDirectoryMappings['ippdf']='isl-privateloan-pdf'
-projectDirectoryMappings['aw']='alpha/alpha-web'
-projectDirectoryMappings['ae']='alpha/alpha-ear'
-projectDirectoryMappings['gw']='genesis/genesis-web'
-projectDirectoryMappings['ge']='genesis/genesis-ear'
-projectDirectoryMappings['ipprocess']= 'isl-privateloan-process'
+  if(s == nil)
+    s = "ippdf => isl-privateloan-pdf, aw => alpha/alpha-web, gw => qenesis/genesis-web, ipprocess => isl-privateloan-process "
+  end
+
+  args={}
+  list = s.split(',')
+  list.each{|it|
+    dirMapping = it.split('=>')
+    args[dirMapping[0].strip] = dirMapping[1].strip
+  }
+
+  args
+end
 
 flags={}
 flags[:printDoNotRun]=ARGV.include?("-v")
 
-process(ARGV, flags, possibleMavenArguments, projectDirectoryMappings)
+process(ARGV, flags, parseCommands(), parseDirectoryMappings())
