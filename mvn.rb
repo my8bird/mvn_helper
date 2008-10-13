@@ -100,7 +100,7 @@ end
 
 def parseCommands()
   s = ENV['MAVEN_COMMANDS']
-puts s
+
   if(s == nil)
     s = "clean, install, process-resources, test-compile, jetty:run"
   end
