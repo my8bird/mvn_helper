@@ -31,16 +31,17 @@ def runBuild(dir, mavenArgs, flags)
   projectDirectory = String.new(s)
   projectDirectory = File.join(projectDirectory.gsub("\\", "/"),  dir)
 	
-  mvnCommand = "mvn -f #{projectDirectory}/pom.xml #{prettyArray(mavenArgs)} -Pisl-internal"
+  mvnCommand = "mvn -B -ff -f #{projectDirectory}/pom.xml #{prettyArray(mavenArgs)} -Pisl-internal"
   puts mvnCommand
+
   if(flags[:printDoNotRun])
     puts mvnCommand
   elsif
-    retval = system(mvnCommand) 
+    system(mvnCommand)
 
-    if($? != 0)
-      puts "Unusual retval #{retval}"
-      exit!
+    if($?.exitstatus != 0)
+      puts "Unusual retval"
+      exit
     end
 
   end
@@ -58,7 +59,7 @@ def setToForIn(status, args, map)
   }
 end
 
-# m ci ip ci g/gw p i =>
+# m ci ip ci gw p i =>
 # mvn clean install isl-privateloan
 # mvn clean install genesis/genesis-web
 # mvn process-sources integration
