@@ -1,7 +1,5 @@
 #!/bin/ruby
 
-require 'fileutils'
-
 # Launchy Config <runner plugin>:
 # mvn
 # C:\Windows\System32\cmd.exe
@@ -9,42 +7,40 @@ require 'fileutils'
 
 # Launchy Command: mvn <tab> <project name>...
 
+require 'fileutils'
+require 'yaml'
+require 'javascript_hash'
+
+@config = nil
+@mvnCommand = ""
+
 def prettyArray(arg)
   ret = " "
   array = arg.sort
-  array.each{|x|
-    key = x[0]
-    value = x[1]
+  array.each{|key, value|
     if (value)
       ret += key + " "
     end
   }
   ret
 end
+def pretty_maven_arguments()
+  ret = ""
+  @config.maven.arguments.each{ |it|
+    ret += it + " "
+  }
+  ret
+end
 
-def runBuild(dir, mavenArgs, flags)
-  s = ENV['PROJECT_DIR']
-  if(s == nil)
-    s = "C:\\users\\common\\privateoan"
-  end
-  
-  projectDirectory = String.new(s)
+def addBuild(dir, mavenArgs, flags)
+  projectDirectory = String.new(@config.directory)
   projectDirectory = File.join(projectDirectory.gsub("\\", "/"),  dir)
-	
-  mvnCommand = "mvn -B -ff -f #{projectDirectory}/pom.xml #{prettyArray(mavenArgs)} -Pisl-internal"
-  puts mvnCommand
-
-  if(flags[:printDoNotRun])
-    puts mvnCommand
-  elsif
-    system(mvnCommand)
-
-    if($?.exitstatus != 0)
-      puts "Unusual retval"
-      exit
-    end
-
+  
+  if(@mvnCommand.length > 0)
+    @mvnCommand << " && "
   end
+	
+  @mvnCommand << "mvn #{prettyArray(mavenArgs)} -f #{projectDirectory}/pom.xml #{pretty_maven_arguments()} "
 end
 
 def setToForIn(status, args, map)
@@ -76,7 +72,7 @@ def process(args, flags, mavenArgs, dirMappings)
       setToForIn(true, arg, mavenArgs)
     elsif
       if(dirMappings[arg])
-        runBuild(dirMappings[arg], mavenArgs, flags)
+        addBuild(dirMappings[arg], mavenArgs, flags)
       else
         regexStr = "^"
         arg.gsub(/./){|s| regexStr += s+"[a-zA-Z]*-"}
@@ -85,10 +81,10 @@ def process(args, flags, mavenArgs, dirMappings)
         
         regex = Regexp.new(regexStr)
         
-        dirEntries = Dir.entries("C:/users/common/privateloan")
+        dirEntries = Dir.entries(@config.directory)
         dirEntries.each{|x|
           if (regex.match(x))
-            runBuild(x, mavenArgs, flags)
+            addBuild(x, mavenArgs, flags)
             break 
           end
         }
@@ -96,42 +92,30 @@ def process(args, flags, mavenArgs, dirMappings)
     end
     doMavenArgs = !doMavenArgs
   end
+  
+  puts "****************************************************"
+  puts "Maven Command(s) to execute:\n" + @mvnCommand.gsub(" && ", " &&\n")
+  puts "****************************************************\n\n"
+  
+  system (@mvnCommand)
 end
 
-def parseCommands()
-  s = ENV['MAVEN_COMMANDS']
-
-  if(s == nil)
-    s = "clean, install, process-resources, test-compile, jetty:run"
-  end
-
-  args={}
-  list = s.split(',')
-  list.each{|it|
-    args[it.strip] = false
+def parsePhases()
+  s = @config.maven.phases
+  phases = { }
+  s.each{|it|
+    phases[it] = false
   }
-
-  args
+  phases
 end
 
-def parseDirectoryMappings()
-  s = ENV['PROJECT_MAPPINGS']
-
-  if(s == nil)
-    s = "ippdf => isl-privateloan-pdf, aw => alpha/alpha-web, gw => qenesis/genesis-web, ipprocess => isl-privateloan-process "
-  end
-
-  args={}
-  list = s.split(',')
-  list.each{|it|
-    dirMapping = it.split('=>')
-    args[dirMapping[0].strip] = dirMapping[1].strip
-  }
-
-  args
+file_location = ENV['M_SETTINGS_FILE']
+if(file_location == nil)
+  file_location = "mvnSettings.yml"
 end
+
+@config = YAML::load_file(file_location);
 
 flags={}
 flags[:printDoNotRun]=ARGV.include?("-v")
-
-process(ARGV, flags, parseCommands(), parseDirectoryMappings())
+process(ARGV, flags, parsePhases(),  @config.mappings )

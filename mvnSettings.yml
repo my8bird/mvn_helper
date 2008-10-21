@@ -1,0 +1,18 @@
+directory: C:/users/common/privateloan
+mappings:
+  ippdf:	isl-privateloan-pdf
+  aw:  		alpha/alpha-web
+  gw:  		genesis/genesis-web
+  ipprocess: 	isl-privateloan-process
+maven:
+  arguments:
+    - -ff
+    - -Pisl-internal
+  phases:
+    - clean
+    - process-resources
+    - test-compile
+    - jetty:run
+    - install
+    - deploy
+    
