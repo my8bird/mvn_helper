@@ -66,11 +66,15 @@ def process(args, flags, mavenArgs, dirMappings)
     if(/^-/.match(arg))
       next
     end
-    
+
     if(doMavenArgs)
       setToForIn(false, "cipt", mavenArgs)
       setToForIn(true, arg, mavenArgs)
-    elsif
+    else
+      dirMappings.each{ |it|
+        puts dirMappings[it]
+        puts it
+      }
       if(dirMappings[arg])
         addBuild(dirMappings[arg], mavenArgs, flags)
       else

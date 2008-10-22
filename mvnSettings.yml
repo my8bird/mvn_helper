@@ -1,9 +1,9 @@
 directory: C:/users/common/privateloan
 mappings:
-  ippdf:	isl-privateloan-pdf
-  aw:  		alpha/alpha-web
-  gw:  		genesis/genesis-web
-  ipprocess: 	isl-privateloan-process
+  ippdf: isl-privateloan-pdf
+  aw: alpha/alpha-web
+  gw: genesis/genesis-web
+  ipprocess: isl-privateloan-process
 maven:
   arguments:
     - -ff
